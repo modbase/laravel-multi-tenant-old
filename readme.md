@@ -4,7 +4,7 @@
 
 This is a fork of the Laravel PHP framework, which now supports multi-tenancy. The folder structure has changed a bit to be able to provide this feature. You'll notice that the `public` and `storage` directories are gone. We now use the `tenants` directory. This folder will contain all the tenant-specific data (including the well-known `public` and `storage` directories).
 
-By using this spin-off, you will be able to create multiple sites powered by the same codebase. This might even be a stepping stone for a Laravel featured SaaS product.
+By using this spin-off, you will be able to create **multiple sites** powered by the **same codebase**. This might even be a stepping stone for a Laravel featured **SaaS product**.
 
 ## Setup and configuration
 
