@@ -8,11 +8,10 @@ class Tenancy_Manage_Task {
 	public function __construct()
 	{
 		error_reporting(0);
-		$this->cpaneluser = 'joostd';
-		$this->cp = new Cpanel('modbase.be');
-		$this->cp->set_port(2083);   
-		$this->cp->password_auth($this->cpaneluser, 'YxcFkg14j8qSM');
-		$this->cp->set_debug(0);
+		$this->cpaneluser = Config::get('tenancy::options.cpanel_user');
+		$this->cp = new Cpanel(Config::get('tenancy::options.cpanel_host'), $this->cpaneluser, Config::get('tenancy::options.cpanel_pass'));
+		$this->cp->set_port(Config::get('tenancy::options.cpanel_port'));   
+		$this->cp->set_debug(Config::get('tenancy::options.debug'));
 	}
 
 	public function run($args = array())
