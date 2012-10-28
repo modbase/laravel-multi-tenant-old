@@ -46,6 +46,8 @@ We have provided four possible commands:
 * `php artisan tenancy::manage:update [name] [pass]` - This enables you to set a new password for the database.
 * `php artisan tenancy::manage:reset [name]` - This is the same as above, but will generate a random password for you.
 
+We plan to split the functionality of the tenancy command into two parts: cPanel based and non-cPanel. This way, people without cPanel can enjoy the fast tenant management.
+
 ## Improvements
 
 This is just an early release. There are a lot of improvements to do. Currently, only MySQL has been _implemented_. Also, the cPanel library should be expanded to contain all the API functions.
