@@ -1,6 +1,6 @@
 <?php
 
-class Tenant_Task {
+class Tenancy_Manage_Task {
 
 	protected $cp;
 	protected $cpaneluser;
@@ -18,10 +18,10 @@ class Tenant_Task {
 	public function run($args = array())
 	{
 		echo "\nAvailable commands:\n\n";
-		echo "tenant:add\t\tAdd a new tenant to the system.\n";
-		echo "tenant:remove\t\tRemoves a specific tenant from the system.\n";
-		echo "tenant:update_password\tUpdate the database password for this tenant.\n";
-		echo "tenant:reset_password\tSet a new random database password for this tenant.\n";
+		echo "manage:add\tAdd a new tenant to the system.\n";
+		echo "manage:remove\tRemoves a specific tenant from the system.\n";
+		echo "manage:update\tUpdate the database password for this tenant.\n";
+		echo "manage:reset\tSet a new random database password for this tenant.\n";
 		return false;
 	}
 
@@ -29,7 +29,7 @@ class Tenant_Task {
 	{
 		if (count($args) != 2)
 		{
-			echo "Usage: php artisan tenant:add [name] [database_password]";
+			echo "Usage: php artisan tenancy::manage:add [tenant_name] [database_password]";
 			return false;
 		}
 
@@ -68,11 +68,11 @@ class Tenant_Task {
 		return true;
 	}
 
-	public function reset_password($args = array())
+	public function reset($args = array())
 	{
 		if (count($args) != 1)
 		{
-			echo "Usage: php artisan tenant:reset_password [name]";
+			echo "Usage: php artisan tenancy::manage:reset [tenant_name]";
 			return false;
 		}
 
@@ -81,11 +81,11 @@ class Tenant_Task {
 		return $this->update_password(array($args[0], $new_pass));
 	}
 
-	public function update_password($args = array())
+	public function update($args = array())
 	{
 		if (count($args) != 2)
 		{
-			echo "Usage: php artisan tenant:update_password [name] [new_password]";
+			echo "Usage: php artisan tenancy::manage:update [tenant_name] [new_password]";
 			return false;
 		}
 
@@ -126,7 +126,7 @@ class Tenant_Task {
 	{
 		if (count($args) != 1)
 		{
-			echo "Usage: php artisan tenant:remove [name]";
+			echo "Usage: php artisan tenancy::manage:remove [tenant_name]";
 			return false;
 		}
 

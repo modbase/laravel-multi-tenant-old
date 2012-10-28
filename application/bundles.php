@@ -34,7 +34,5 @@
 */
 
 return array(
-
-	'docs' => array('handles' => 'docs'),
-
+	'tenancy' => array('auto' => true),
 );
