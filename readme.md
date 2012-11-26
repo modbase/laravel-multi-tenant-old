@@ -70,8 +70,9 @@ List all available tenants.
 Add a new tenant to the system with the provided name and the (optional) provided database password. If no password is provided, a random one will be generated.
 
 * `php artisan tenancy::manage:remove [name]`
+* `php artisan tenancy::manage:remove [multiple] [tenants] [at] [once]`
 
-Remove the given tenant, thus all files and database (if cpanel enabled).
+Remove the given tenant(s), thus all files and database (if cpanel enabled).
 
 * `php artisan tenancy::manage:update [name] [pass]`
 
