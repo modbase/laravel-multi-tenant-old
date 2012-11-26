@@ -167,42 +167,43 @@ class Tenancy_Manage_Task {
 
 	public function remove($args = array())
 	{
-		if (count($args) != 1)
+		if (count($args) < 1)
 		{
 			echo "Usage: php artisan tenancy::manage:remove [tenant_name]";
 			return false;
 		}
 
-		$name = $args[0];
-
-		$this->message("Removing tenant directory... ");
-
-		if (!file_exists(path('tenants').$name))
+		foreach ($args as $name)
 		{
-			echo "ERROR! This tenant does not exist!";
-			return false;
-		}
-
-		File::rmdir(path('tenants').$name);
-
-		$this->message('ok!', true);
-
-		if ($this->cpanel)
-		{
-			$this->message("Removing database and user... ");
-
-			if (!$this->cp->remove_database_and_user($name, $name))
+			$this->message("Removing tenant directory... ");
+	
+			if (!file_exists(path('tenants').$name))
 			{
-				echo "ERROR! Could not remove database!";
+				echo "ERROR! This tenant does not exist!";
 				return false;
 			}
-
+	
+			File::rmdir(path('tenants').$name);
+	
 			$this->message('ok!', true);
-
-			// TODO: remove subdomain
+	
+			if ($this->cpanel)
+			{
+				$this->message("Removing database and user... ");
+	
+				if (!$this->cp->remove_database_and_user($name, $name))
+				{
+					echo "ERROR! Could not remove database!";
+					return false;
+				}
+	
+				$this->message('ok!', true);
+	
+				// TODO: remove subdomain
+			}
+	
+			echo "DONE! Tenant ($name) is removed from the system.";
 		}
-
-		echo "DONE! Tenant ($name) is removed from the system.";
 		return true;
 	}
 
