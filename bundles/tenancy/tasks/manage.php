@@ -180,8 +180,10 @@ class Tenancy_Manage_Task {
 			if (!file_exists(path('tenants').$name))
 			{
 				echo "ERROR! This tenant does not exist!";
-				return false;
+				continue;
 			}
+			else
+			{}
 	
 			File::rmdir(path('tenants').$name);
 	
@@ -194,7 +196,7 @@ class Tenancy_Manage_Task {
 				if (!$this->cp->remove_database_and_user($name, $name))
 				{
 					echo "ERROR! Could not remove database!";
-					return false;
+					continue;
 				}
 	
 				$this->message('ok!', true);
