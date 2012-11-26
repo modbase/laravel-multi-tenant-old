@@ -61,11 +61,16 @@ We can speed up the above process with a factor of... a lot! Now you can use the
 
 We have provided five commands (feel free to add your own):
 
-* `php artisan tenancy::manage:list_all` - This will add a new tenant to the system with the provided name and the provided database password.
-* `php artisan tenancy::manage:add [name] [pass]` - Add a new tenant to the system with the provided name and the (optional) provided database password. If no password is provided, a random one will be generated.
-* `php artisan tenancy::manage:remove [name]` - Remove the given tenant (all files and database!).
-* `php artisan tenancy::manage:update [name] [pass]` - Set a new password for the database.
-* `php artisan tenancy::manage:reset [name]` - Same as above, but will generate a random password for you.
+* `php artisan tenancy::manage:list_all`
+List all available tenants.
+* `php artisan tenancy::manage:add [name] [pass]`
+Add a new tenant to the system with the provided name and the (optional) provided database password. If no password is provided, a random one will be generated.
+* `php artisan tenancy::manage:remove [name]`
+Remove the given tenant, thus all files and database (if cpanel enabled).
+* `php artisan tenancy::manage:update [name] [pass]`
+Set a new password for the database.
+* `php artisan tenancy::manage:reset [name]`
+Same as above, but will generate a random password for you.
 
 ## Improvements
 
