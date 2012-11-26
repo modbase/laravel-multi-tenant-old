@@ -175,6 +175,12 @@ class Tenancy_Manage_Task {
 
 		foreach ($args as $name)
 		{
+			if ($name == 'default')
+			{
+				echo "ERROR! You cannot delete the default tenant!";
+				continue;
+			}
+			
 			$this->message("Removing tenant directory... ");
 	
 			if (!file_exists(path('tenants').$name))
