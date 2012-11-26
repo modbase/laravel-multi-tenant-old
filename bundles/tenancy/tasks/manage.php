@@ -182,8 +182,6 @@ class Tenancy_Manage_Task {
 				echo "ERROR! This tenant does not exist!";
 				continue;
 			}
-			else
-			{}
 	
 			File::rmdir(path('tenants').$name);
 	
