@@ -54,12 +54,12 @@ class Tenancy_Manage_Task {
 	 */
 	public function run($args = array())
 	{
-		echo "\nAvailable commands:\n\n";
-		echo "manage:show\tList all available tenants.\n";
-		echo "manage:add\tAdd a new tenant to the system.\n";
-		echo "manage:remove\tRemoves a specific tenant from the system.\n";
-		echo "manage:update\tUpdate the database password for this tenant.\n";
-		echo "manage:reset\tSet a new random database password for this tenant.\n";
+		echo PHP_EOL.'Available commands:'.PHP_EOL.PHP_EOL;
+		echo "manage:show\tList all available tenants.".PHP_EOL;
+		echo "manage:add\tAdd a new tenant to the system.".PHP_EOL;
+		echo "manage:remove\tRemoves a specific tenant from the system.".PHP_EOL;
+		echo "manage:update\tUpdate the database password for this tenant.".PHP_EOL;
+		echo "manage:reset\tSet a new random database password for this tenant.".PHP_EOL;
 		
 		return true;
 	}
@@ -83,7 +83,7 @@ class Tenancy_Manage_Task {
 			$exclude = array('default', '.', '..');
 			$count = 0;
 
-			echo "\nAvailable tenants:\n";
+			echo PHP_EOL.'Available tenants:'.PHP_EOL;
 			while (($tenant = readdir($tenants)) !== false)
 			{
 				// Check whether the tenant is actually a directory
@@ -91,17 +91,17 @@ class Tenancy_Manage_Task {
 				if (is_dir(path('tenants').$tenant) && !in_array($tenant, $exclude))
 				{
 					$count++;
-					echo "- $tenant\n";
+					echo "- $tenant".PHP_EOL;
 				}
 			}
 
 			closedir($tenants);
 
-			if ($count === 0) echo "No tenants added yet";
+			if ($count === 0) echo 'No tenants added yet';
 		}
 		else
 		{
-			$this->message("There was a problem opening the tenants directory.");
+			$this->message('There was a problem opening the tenants directory.');
 			return false;
 		}
 	}
@@ -125,7 +125,7 @@ class Tenancy_Manage_Task {
 		// properly format the command.
 		if (count($args) === 0)
 		{
-			echo "Usage: php artisan tenancy::manage:add <tenant_name> [<db_pass>]";
+			echo 'Usage: php artisan tenancy::manage:add <tenant_name> [<db_pass>]';
 			return false;
 		}
 		else if (count($args) === 1)
@@ -137,16 +137,16 @@ class Tenancy_Manage_Task {
 		list($name, $db_pass) = $args;
 		$db_user = $db_name = Config::get('tenancy::options.db_prefix').$name;
 
-		$this->message("Creating tenant folder structure... ");
+		$this->message('Creating tenant folder structure... ');
 
 		if (!$this->create_tenant_folder($name))
 		{
-			echo "ERROR! Could not create new tenant directory! Make sure this name is unique.";
+			echo 'ERROR! Could not create new tenant directory! Make sure this name is unique.';
 			return false;
 		}
 
 		$this->message('ok!', true);	
-		$this->message("Updating config files... ");
+		$this->message('Updating config files... ');
 		
 		// Grab the default config file from tenants/default/
 		// Replace the default values with the prepared values.
@@ -157,17 +157,15 @@ class Tenancy_Manage_Task {
 		File::put(path('tenants').$name.'/config.php', $config);
 
 		$this->message('ok!', true);
-		$this->message("Creating database... ");
+		$this->message('Creating database... ');
 
 		// If using cPanel then create the database using the cPanel API
 		// otherwise we will use Laravel's built in DB class.
 		if ($this->cpanel)
 		{
-			
-
 			if (!$this->cp->create_database($db_name, $db_user, $db_pass))
 			{
-				echo "ERROR! Could not create the database!";
+				echo 'ERROR! Could not create the database!';
 				return false;
 			}
 
@@ -179,7 +177,7 @@ class Tenancy_Manage_Task {
 		{
 			if (!DB::query("CREATE DATABASE $db_name"))
 			{
-				echo "ERROR: Could not create the database!";
+				echo 'ERROR: Could not create the database!';
 				return false;
 			}
 		}
@@ -204,7 +202,7 @@ class Tenancy_Manage_Task {
 		// properly format the command.
 		if (count($args) !== 1)
 		{
-			echo "Usage: php artisan tenancy::manage:reset <tenant_name>";
+			echo 'Usage: php artisan tenancy::manage:reset <tenant_name>';
 			return false;
 		}
 
@@ -229,7 +227,7 @@ class Tenancy_Manage_Task {
 		// properly format the command.
 		if (count($args) !== 2)
 		{
-			echo "Usage: php artisan tenancy::manage:update <tenant_name> <new_db_pass>";
+			echo 'Usage: php artisan tenancy::manage:update <tenant_name> <new_db_pass>';
 			return false;
 		}
 
@@ -238,30 +236,30 @@ class Tenancy_Manage_Task {
 
 		if (!file_exists(path('tenants').$name))
 		{
-			echo "ERROR! This tenant does not exist!";
+			echo 'ERROR! This tenant does not exist!';
 			return false;
 		}	
 
 		if ($this->cpanel)
 		{
-			$this->message("Updating database user... ");
+			$this->message('Updating database user... ');
 
 			if (!$this->cp->update_database_user($db_user, $new_pass))
 			{
-				echo "ERROR! Could not update the database user!";
+				echo 'ERROR! Could not update the database user!';
 				return false;
 			}
 
 			$this->message('ok!', true);
 		}
 
-		$this->message("Updating config files... ");
+		$this->message('Updating config files... ');
 		$config = File::get(path('tenants').$name.'/config.php');
 		$config = preg_replace("/'DB_PASS', '.*'/", "'DB_PASS', '{$new_pass}'", $config, 1, $count);
 
 		if ($count !== 1)
 		{
-			echo "ERROR! Could not update the password!";
+			echo 'ERROR! Could not update the password!';
 			return false;
 		}
 
@@ -292,7 +290,7 @@ class Tenancy_Manage_Task {
 		// properly format the command.
 		if (count($args) < 1)
 		{
-			echo "Usage: php artisan tenancy::manage:remove <tenant_name>";
+			echo 'Usage: php artisan tenancy::manage:remove <tenant_name>';
 			return false;
 		}
 
@@ -300,15 +298,15 @@ class Tenancy_Manage_Task {
 		{
 			if ($name == 'default')
 			{
-				echo "ERROR! You cannot delete the default tenant!";
+				echo 'ERROR! You cannot delete the default tenant!';
 				continue;
 			}
 			
-			$this->message("Removing tenant directory... ");
+			$this->message('Removing tenant directory... ');
 	
 			if (!file_exists(path('tenants').$name))
 			{
-				echo "ERROR! This tenant does not exist!";
+				echo 'ERROR! This tenant does not exist!';
 				continue;
 			}
 	
@@ -320,11 +318,11 @@ class Tenancy_Manage_Task {
 			
 			if ($this->cpanel)
 			{	
-				$this->message("Removing database and user... ");
+				$this->message('Removing database and user... ');
 
 				if (!$this->cp->remove_database_and_user($db_name, $db_user))
 				{
-					echo "ERROR! Could not remove database!";
+					echo 'ERROR! Could not remove database!';
 					continue;
 				}
 	
@@ -334,11 +332,11 @@ class Tenancy_Manage_Task {
 			}
 			else
 			{
-				$this->message("Removing database... ");
+				$this->message('Removing database... ');
 
 				if (!DB::query("DROP DATABASE $db_name"))
 				{
-					echo "ERROR: Could not drop the database!";
+					echo 'ERROR: Could not drop the database!';
 					return false;
 				}
 			}
@@ -374,7 +372,7 @@ class Tenancy_Manage_Task {
 	 */
 	private function message($msg, $newline = false)
 	{
-		echo $msg.($newline ? "\n" : "");
+		echo $msg.($newline ? PHP_EOL : '');
 		flush();
 		ob_flush();
 	}
