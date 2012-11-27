@@ -26,6 +26,8 @@ return array(
 
 The comments should be pretty much self explanatory.
 
+**Important note:** be careful with changing the `db_prefix` when you already have added tenants to the system. You will be unable to delete the database of those when using the incorrect prefix!
+
 ### Tenants
 
 Each tenant must have its own directory in the `tenants` folder. The easiest way is to copy the complete `default` folder and rename it to e.g. `site2`. Inside you will find two other folders: `public` and `storage`. The latter will contain all the session information, cached views etc. just like in the original Laravel. The `public` directory contains your public data, such as CSS files, images etc. This whole process can be **automated** by using the artisan task (see below).
