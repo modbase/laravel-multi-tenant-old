@@ -1,5 +1,7 @@
 # Laravel Multitenancy
 
+[![Build Status](https://secure.travis-ci.org/modbase/laravel-multi-tenant.png)](http://travis-ci.org/modbase/laravel-multi-tenant)
+
 ## Introduction
 
 This is a fork of the Laravel PHP framework, which now supports multi-tenancy. The folder structure has changed a bit to be able to provide this feature. You'll notice that the `public` and `storage` directories are gone. We now use the `tenants` directory. This folder will contain all the tenant-specific data (including the well-known `public` and `storage` directories).
