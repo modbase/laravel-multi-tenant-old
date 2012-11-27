@@ -63,19 +63,19 @@ We have provided five commands (feel free to add your own):
 
 * `php artisan tenancy::manage:list_all`
 
-List all available tenants.
+Lists all available tenants.
 
 * `php artisan tenancy::manage:add <name> [<pass>]`
 
-Add a new tenant to the system with the provided name and the (optional) provided database password. If no password is provided, a random one will be generated.
+Adds a new tenant to the system with the provided name and the (optional) provided database password. If no password is provided, a random one will be generated.
 
 * `php artisan tenancy::manage:remove <name> [<second_name> ...]`
 
-Remove the given tenant(s), thus all files and database (if cpanel enabled).
+Removes the given tenant(s), thus all files and database (if cpanel enabled).
 
 * `php artisan tenancy::manage:update <name> <pass>`
 
-Set a new password for the database of the given tenant.
+Sets a new password for the database of the given tenant.
 
 * `php artisan tenancy::manage:reset <name>`
 
