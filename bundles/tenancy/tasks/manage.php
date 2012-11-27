@@ -101,6 +101,14 @@ class Tenancy_Manage_Task {
 
 			// TODO: create a subdomain and link it to the tenants/$name/public folder
 		}
+		else
+		{
+			if (!DB::query("CREATE DATABASE $db_name"))
+			{
+				echo "ERROR: Could not create the database!"
+				return false;
+			}
+		}
 
 		echo "DONE! New tenant ($name) added to the system.";
 		return true;
