@@ -52,7 +52,7 @@ class Tenancy_Manage_Task {
 	 * @param	array	$args
 	 * @return	void
 	 */
-	public function run($args = array())
+	public function run()
 	{
 		echo PHP_EOL.'Available commands:'.PHP_EOL.PHP_EOL;
 		echo "manage:show\tList all available tenants.".PHP_EOL;
@@ -71,10 +71,9 @@ class Tenancy_Manage_Task {
 	 * 	php artisan tenancy::manage:show
 	 * </code>
 	 * 
-	 * @param	array	$args
 	 * @return	bool
 	 */
-	public function show($args = array())
+	public function show()
 	{
 		// If we can't open the directory there isn't anything we can do now.
 		if ($tenants = opendir(path('tenants')))
