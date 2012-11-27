@@ -32,6 +32,7 @@ class Tenancy_Manage_Task {
 	{
 		$this->cpanel = Config::get('tenancy::options.enable_cpanel');
 
+		// If cPanel is enabled (via config), then setup a new instance of the Cpanel class.
 		if ($this->cpanel)
 		{
 			$this->cpaneluser = Config::get('tenancy::options.cpanel_user');
@@ -45,7 +46,7 @@ class Tenancy_Manage_Task {
 	 * List available artisan commands.
 	 * 
 	 * <code>
-	 * 	php artisan tenancy::manage:run
+	 * 	php artisan tenancy::manage
 	 * </code>
 	 * 
 	 * @param	array	$args
@@ -75,8 +76,7 @@ class Tenancy_Manage_Task {
 	 */
 	public function list_all($args = array())
 	{
-		// If we can't open the directory there isn't anything
-		// we can do now.
+		// If we can't open the directory there isn't anything we can do now.
 		if ($tenants = opendir(path('tenants')))
 		{
 			// List of places we don't want to display
@@ -110,7 +110,7 @@ class Tenancy_Manage_Task {
 	 * Add a new tenant.
 	 * 
 	 * <code>
-	 * 	php artisan tenancy::manage:add [tenant_name] [db_pass]
+	 * 	php artisan tenancy::manage:add <tenant_name> [<db_pass>]
 	 * </code>
 	 * 
 	 * @param	array	$args
@@ -169,7 +169,7 @@ class Tenancy_Manage_Task {
 
 			$this->message('ok!', true);
 
-			// TODO: create a subdomain and link it to the tenants/$name/public folder
+			// TODO: create a subdomain via cPanel API and link it to the tenants/$name/public folder
 		}
 		else
 		{
@@ -188,7 +188,7 @@ class Tenancy_Manage_Task {
 	 * Reset tenant password.
 	 * 
 	 * <code>
-	 * 	php artisan tenancy::manage:reset [tenant_name]
+	 * 	php artisan tenancy::manage:reset <tenant_name>
 	 * </code>
 	 * 
 	 * @param	array	$args
@@ -213,7 +213,7 @@ class Tenancy_Manage_Task {
 	 * Update tenant password.
 	 * 
 	 * <code>
-	 * 	php artisan tenancy::manage:update [tenant_name] [db_pass]
+	 * 	php artisan tenancy::manage:update <tenant_name> <new_db_pass>
 	 * </code>
 	 * 
 	 * @param	array	$args
@@ -272,10 +272,10 @@ class Tenancy_Manage_Task {
 	 * 
 	 * <code>
 	 * 		// Remove a single tenant
-	 * 		php artisan tenancy::manage:remove [tenant_name]
+	 * 		php artisan tenancy::manage:remove <tenant_name>
 	 * 
 	 * 		// Remove multiple tenants
-	 * 		php artisan tenancy::manage:remove [tenant_name] [tenant_name] [etc]
+	 * 		php artisan tenancy::manage:remove <tenant_name> <tenant2_name> <etc>
 	 * </code>
 	 * 
 	 * @param	array	$args
@@ -325,14 +325,22 @@ class Tenancy_Manage_Task {
 	
 				// TODO: remove subdomain
 			}
-	
+			else
+			{
+				if (!DB::query("DROP DATABASE $name"))
+				{
+					echo "ERROR: Could not drop the database!"
+					return false;
+				}
+			}
+			
 			echo "DONE! Tenant ($name) is removed from the system.";
 		}
 		return true;
 	}
 
 	/**
-	 * Create tenant foler in /tenants directory.
+	 * Create tenant foler in /tenants directory based on the default.
 	 * 
 	 * @param	string	$name
 	 * @return	bool
@@ -349,7 +357,7 @@ class Tenancy_Manage_Task {
 	}
 
 	/**
-	 * Echo out a message.
+	 * Echo out a message without buffering it.
 	 * 
 	 * @param	string	$msg
 	 * @param	bool	$newline
