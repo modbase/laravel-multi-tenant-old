@@ -2,10 +2,32 @@
 
 class Tenancy_Manage_Task {
 
+	/**
+	 * cPanel instance.
+	 * 
+	 * @var	object
+	 */
 	protected $cp;
+	
+	/**
+	 * cPanel username.
+	 * 
+	 * @var string
+	 */
 	protected $cpaneluser;
+	
+	/**
+	 * cPanel option.
+	 * 
+	 * @var	bool
+	 */
 	protected $cpanel;
 
+	/**
+	 * Constructor
+	 * 
+	 * @return	void
+	 */
 	public function __construct()
 	{
 		$this->cpanel = Config::get('tenancy::options.enable_cpanel');
@@ -19,6 +41,16 @@ class Tenancy_Manage_Task {
 		}
 	}
 
+	/**
+	 * List available artisan commands.
+	 * 
+	 * <code>
+	 * 	php artisan tenancy::manage:run
+	 * </code>
+	 * 
+	 * @param	array	$args
+	 * @return	void
+	 */
 	public function run($args = array())
 	{
 		echo "\nAvailable commands:\n\n";
@@ -27,19 +59,35 @@ class Tenancy_Manage_Task {
 		echo "manage:remove\tRemoves a specific tenant from the system.\n";
 		echo "manage:update\tUpdate the database password for this tenant.\n";
 		echo "manage:reset\tSet a new random database password for this tenant.\n";
+		
 		return true;
 	}
 
+	/**
+	 * List all tenants on system.
+	 * 
+	 * <code>
+	 * 	php artisan tenancy::manage:list_all
+	 * </code>
+	 * 
+	 * @param	array	$args
+	 * @return	bool
+	 */
 	public function list_all($args = array())
 	{
+		// If we can't open the directory there isn't anything
+		// we can do now.
 		if ($tenants = opendir(path('tenants')))
-		{	
+		{
+			// List of places we don't want to display
 			$exclude = array('default', '.', '..');
 			$count = 0;
 
 			echo "\nAvailable tenants:\n";
 			while (($tenant = readdir($tenants)) !== false)
 			{
+				// Check whether the tenant is actually a directory
+				// and that it isn't something we don't want to display.
 				if (is_dir(path('tenants').$tenant) && !in_array($tenant, $exclude))
 				{
 					$count++;
@@ -49,18 +97,36 @@ class Tenancy_Manage_Task {
 
 			closedir($tenants);
 
-			if ($count === 0)
-				echo "No tenants added yet";
+			if ($count === 0) echo "No tenants added yet";
+		}
+		else
+		{
+			$this->message("There was a problem opening the tenants directory.");
+			return false;
 		}
 	}
 
+	/**
+	 * Add a new tenant.
+	 * 
+	 * <code>
+	 * 	php artisan tenancy::manage:add [tenant_name] [db_pass]
+	 * </code>
+	 * 
+	 * @param	array	$args
+	 * @return	bool
+	 */
 	public function add($args = array())
 	{
+		// If we don't have any arguments then tell the user how to
+		// properly format the command.
 		if (count($args) === 0)
 		{
 			echo "Usage: php artisan tenancy::manage:add [tenant_name] [database_password]";
 			return false;
-		} else if (count($args) === 1) {
+		}
+		else if (count($args) === 1)
+		{
 			// No password supplied, generate a random one
 			$args[1] = Str::random(10);
 		}
@@ -78,7 +144,9 @@ class Tenancy_Manage_Task {
 
 		$this->message('ok!', true);	
 		$this->message("Updating config files... ");
-
+		
+		// Grab the default config file from tenants/default/
+		// Replace the default values with the prepared values.
 		$config = File::get(path('tenants').$name.'/config.php');
 		$config = preg_replace("/'DB_NAME', '.*'/", "'DB_NAME', '{$db_name}'", $config);
 		$config = preg_replace("/'DB_USER', '.*'/", "'DB_USER', '{$db_user}'", $config);
@@ -87,6 +155,8 @@ class Tenancy_Manage_Task {
 
 		$this->message('ok!', true);
 
+		// If using cPanel then create the database using the cPanel API
+		// otherwise we will use Laravel's built in DB class.
 		if ($this->cpanel)
 		{
 			$this->message("Creating database... ");
@@ -114,8 +184,20 @@ class Tenancy_Manage_Task {
 		return true;
 	}
 
+	/**
+	 * Reset tenant password.
+	 * 
+	 * <code>
+	 * 	php artisan tenancy::manage:reset [tenant_name]
+	 * </code>
+	 * 
+	 * @param	array	$args
+	 * @return	void
+	 */
 	public function reset($args = array())
 	{
+		// If we don't have any arguments then tell the user how to
+		// properly format the command.
 		if (count($args) != 1)
 		{
 			echo "Usage: php artisan tenancy::manage:reset [tenant_name]";
@@ -127,8 +209,20 @@ class Tenancy_Manage_Task {
 		return $this->update_password(array($args[0], $new_pass));
 	}
 
+	/**
+	 * Update tenant password.
+	 * 
+	 * <code>
+	 * 	php artisan tenancy::manage:update [tenant_name] [db_pass]
+	 * </code>
+	 * 
+	 * @param	array	$args
+	 * @return	bool
+	 */
 	public function update($args = array())
 	{
+		// If we don't have any arguments then tell the user how to
+		// properly format the command.
 		if (count($args) != 2)
 		{
 			echo "Usage: php artisan tenancy::manage:update [tenant_name] [new_password]";
@@ -173,8 +267,24 @@ class Tenancy_Manage_Task {
 		return true;
 	}
 
+	/**
+	 * Remove tenant from system.
+	 * 
+	 * <code>
+	 * 		// Remove a single tenant
+	 * 		php artisan tenancy::manage:remove [tenant_name]
+	 * 
+	 * 		// Remove multiple tenants
+	 * 		php artisan tenancy::manage:remove [tenant_name] [tenant_name] [etc]
+	 * </code>
+	 * 
+	 * @param	array	$args
+	 * @return	bool
+	 */
 	public function remove($args = array())
 	{
+		// If we don't have any arguments tell the user how to
+		// properly format the command.
 		if (count($args) < 1)
 		{
 			echo "Usage: php artisan tenancy::manage:remove [tenant_name]";
@@ -221,6 +331,12 @@ class Tenancy_Manage_Task {
 		return true;
 	}
 
+	/**
+	 * Create tenant foler in /tenants directory.
+	 * 
+	 * @param	string	$name
+	 * @return	bool
+	 */
 	private function create_tenant_folder($name)
 	{
 		if (file_exists(path('tenants').$name))
@@ -232,6 +348,13 @@ class Tenancy_Manage_Task {
 		return File::cpdir(path('tenants').'default', path('tenants').$name);
 	}
 
+	/**
+	 * Echo out a message.
+	 * 
+	 * @param	string	$msg
+	 * @param	bool	$newline
+	 * @return	string
+	 */
 	private function message($msg, $newline = false)
 	{
 		echo $msg.($newline ? "\n" : "");
