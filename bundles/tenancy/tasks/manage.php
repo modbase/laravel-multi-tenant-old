@@ -52,7 +52,7 @@ class Tenancy_Manage_Task {
 	 * @param	array	$args
 	 * @return	void
 	 */
-	public function run()
+	public function run($args = array())
 	{
 		echo PHP_EOL.'Available commands:'.PHP_EOL.PHP_EOL;
 		echo "manage:show\tList all available tenants.".PHP_EOL;
@@ -71,9 +71,10 @@ class Tenancy_Manage_Task {
 	 * 	php artisan tenancy::manage:show
 	 * </code>
 	 * 
+	 * @param	array	$args
 	 * @return	bool
 	 */
-	public function show()
+	public function show($args = array())
 	{
 		// If we can't open the directory there isn't anything we can do now.
 		if ($tenants = opendir(path('tenants')))
@@ -140,22 +141,18 @@ class Tenancy_Manage_Task {
 
 		if (!$this->create_tenant_folder($name))
 		{
-			echo 'ERROR! Could not create new tenant directory! Make sure this name is unique.';
 			return false;
 		}
 
-		$this->message('ok!', true);	
-		$this->message('Updating config files... ');
-		
-		// Grab the default config file from tenants/default/
-		// Replace the default values with the prepared values.
-		$config = File::get(path('tenants').$name.'/config.php');
-		$config = preg_replace("/'DB_NAME', '.*'/", "'DB_NAME', '{$db_name}'", $config);
-		$config = preg_replace("/'DB_USER', '.*'/", "'DB_USER', '{$db_user}'", $config);
-		$config = preg_replace("/'DB_PASS', '.*'/", "'DB_PASS', '{$db_pass}'", $config);
-		File::put(path('tenants').$name.'/config.php', $config);
-
 		$this->message('ok!', true);
+
+		$this->message('Updating config file...');
+		if (!$this->create_tenant_connection($name, $db_pass))
+		{
+			return false;
+		}
+		$this->message('ok!', true);
+
 		$this->message('Creating database... ');
 
 		// If using cPanel then create the database using the cPanel API
@@ -302,15 +299,10 @@ class Tenancy_Manage_Task {
 			}
 			
 			$this->message('Removing tenant directory... ');
-	
-			if (!file_exists(path('tenants').$name))
+			if (!$this->remove_tenant_folder($name))
 			{
-				echo 'ERROR! This tenant does not exist!';
 				continue;
 			}
-	
-			File::rmdir(path('tenants').$name);
-	
 			$this->message('ok!', true);
 
 			$db_name = $db_user = Config::get('tenancy::options.db_prefix').$name;
@@ -336,7 +328,7 @@ class Tenancy_Manage_Task {
 				if (!DB::query("DROP DATABASE $db_name"))
 				{
 					echo 'ERROR: Could not drop the database!';
-					return false;
+					continue;
 				}
 			}
 			
@@ -355,11 +347,128 @@ class Tenancy_Manage_Task {
 	{
 		if (file_exists(path('tenants').$name))
 		{
-			// Tenant already exists
+			echo 'ERROR! Could not create new tenant directory! Make sure this name is unique.';
 			return false;
 		}
 		
-		return File::cpdir(path('tenants').'default', path('tenants').$name);
+		return File::cpdir(path('bundle').'/tenancy/tenants/default', path('tenants').$name);
+	}
+
+	/**
+	 * Remove tenant folder from /tenants directory.
+	 * 
+	 * @param 	string 	$name
+	 * @return 	bool
+	 */
+	private function remove_tenant_folder($name)
+	{
+		if (!file_exists(path('tenants').$name))
+		{
+			echo "ERROR! Directory for ($name) does not exist!";
+			return false;
+		}
+	
+		return File::rmdir(path('tenants').$name);
+	}
+
+	/**
+	 * Add tenant database connection to /config/tenants.php
+	 * 
+	 * @param 	string 	$name
+	 * @param 	string 	$db_pass
+	 * @return 	bool
+	 */
+	private function create_tenant_connection($name = null, $db_pass = null)
+	{
+		// If we don't have a name or a password we can't continue
+		if (is_null($name) || is_null($db_pass))
+		{
+			echo "ERROR: We need more to work with here! Not all the data got through.";
+			return false;
+		}
+
+		$tenants = Config::get('tenancy::tenants', array());
+
+		// Obviously we don't want to override somebody's connection
+		// so we check to see if the tenant name already exists in
+		// the connections list.
+		if (array_key_exists($name, $tenants))
+		{
+			echo "ERROR: ($name) already has a database connection!";
+			return false;
+		}
+
+		// Build the tenant connection array. 
+		// Note: we prefix the database name with 'tenant_'. This makes
+		// things appear tidier in phpmyadmin.
+		// 
+		// Todo: We need to come up with a way to use different database types.
+		$tenant[$name] = array(
+			'driver'	=> 'mysql',
+			'host'		=> 'localhost',
+			'database'	=> "tenant_$name",
+			'username'	=> $name,
+			'password'	=> $db_pass,
+			'charset'	=> 'utf8',
+			'prefix'	=> ''
+		);
+	
+		// In order to push the updated tenants list to the config file we
+		// convert it to a string using var_export($array, true). Then it's
+		// pushed to the new file.
+		$tenants = var_export(array_merge($tenant, $tenants), true);
+
+		$file_open = File::get(path('bundle').'tenancy/config/tenants.php');
+		$content   = preg_replace(
+
+			// Find the array between our markers. #BEGIN_... and #END_...
+			"/(#BEGIN_TENANTS_LIST)(.*?)(#END_TENANTS_LIST)/is",
+
+			// Replace the entire array with the updated list. We also need to
+			// put in new markers because the expression we use removes them.
+			"#BEGIN_TENANTS_LIST\n$tenants;\n#END_TENANTS_LIST",
+
+			$file_open
+		);
+
+		File::put(path('bundle').'tenancy/config/tenants.php', $content);
+		return true;
+	}
+
+	/**
+	 * Remove tenant database connection from /config/tenants.php
+	 * 
+	 * @param 	string 	$name
+	 * @return 	bool
+	 */
+	private function remove_tenant_connection($name)
+	{
+		$tenants = Config::get('tenancy::tenants');
+
+		if (!array_key_exists($name, $tenants))
+		{
+			echo "ERROR: ($name) doesn't have a database connection!";
+			return false;
+		}
+
+		$tenants = var_export(unset($tenants[$name]));
+
+		$file_open = File::get(path('bundle').'tenancy/config/tenants.php');
+		$content   = preg_replace(
+
+			// Find the array between our markers. #BEGIN_... and #END_...
+			"/(#BEGIN_TENANTS_LIST)(.*?)(#END_TENANTS_LIST)/is",
+
+			// Replace the entire array with the updated list. We also need to
+			// put in new markers because the expression we use removes them.
+			"#BEGIN_TENANTS_LIST\n$tenants;\n#END_TENANTS_LIST",
+
+			$file_open
+		);
+
+		File::put(path('bundle').'tenancy/config/tenants.php', $content);
+
+		return true;
 	}
 
 	/**
