@@ -1,6 +1,9 @@
 MIT License
 
-Copyright (c) <2012> <Taylor Otwell> <taylorotwell@gmail.com>
+Copyright (c) <2012>
+
+<Taylor Otwell> <taylorotwell@gmail.com>
+<Stijn Geselle> <stijn@modbase.be>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
