@@ -95,3 +95,9 @@ This is just an early release. There are a lot of improvements to do. Currently,
 ## Contribute
 
 Found a bug, got another awesome change? Just send us a pull request! The community thanks you :)
+
+## License
+
+Copyright 2012 Stijn Geselle
+
+Licensed under the MIT License
