@@ -116,10 +116,3 @@ function set_path($path, $value)
 {
 	$GLOBALS['laravel_paths'][$path] = $value;
 }
-
-/**
- * The database configuration
- *
- */
-
-require 'config.php';
