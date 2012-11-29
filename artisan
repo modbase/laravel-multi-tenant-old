@@ -12,7 +12,7 @@
 // --------------------------------------------------------------
 // Set the core Laravel path constants.
 // --------------------------------------------------------------
-require 'tenants/default/paths.php';
+require 'paths.php';
 
 // --------------------------------------------------------------
 // Bootstrap the Laravel core.
