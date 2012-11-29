@@ -271,7 +271,7 @@ class Manager
 	{
 		if (file_exists(path('tenants').$name))
 		{
-			throw new Exception("ERROR! Could not create new tenant directory ($name)! Make sure this name is unique.");
+			throw new Exception("ERROR! Could not create new tenant directory '$name'! Make sure this name is unique.");
 			return false;
 		}
 		
@@ -288,7 +288,7 @@ class Manager
 	{
 		if (!file_exists(path('tenants').$name))
 		{
-			throw new Exception("ERROR! Directory for ($name) does not exist!");
+			throw new Exception("ERROR! Directory for '$name' does not exist!");
 			return false;
 		}
 	
@@ -318,7 +318,7 @@ class Manager
 		// the connections list.
 		if (array_key_exists($name, $tenants))
 		{
-			throw new Exception("ERROR! ($name) already exists in the tenant connections list!");
+			throw new Exception("ERROR! '$name' already exists in the tenant connections list!");
 			return false;
 		}
 
@@ -370,7 +370,7 @@ class Manager
 
 		if (!array_key_exists($name, $tenants))
 		{
-			throw new Exception("ERROR: couldn't find ($name) in tenant connections list!");
+			throw new Exception("ERROR: couldn't find '$name' in tenant connections list!");
 			return false;
 		}
 
