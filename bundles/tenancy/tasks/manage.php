@@ -3,46 +3,6 @@
 class Tenancy_Manage_Task {
 
 	/**
-	 * cPanel instance.
-	 * 
-	 * @var	object
-	 */
-	protected $cp;
-	
-	/**
-	 * cPanel username.
-	 * 
-	 * @var string
-	 */
-	protected $cpaneluser;
-	
-	/**
-	 * cPanel option.
-	 * 
-	 * @var	bool
-	 */
-	protected $cpanel;
-
-	/**
-	 * Constructor
-	 * 
-	 * @return	void
-	 */
-	public function __construct()
-	{
-		$this->cpanel = Config::get('tenancy::options.enable_cpanel');
-
-		// If cPanel is enabled (via config), then setup a new instance of the Cpanel class.
-		if ($this->cpanel)
-		{
-			$this->cpaneluser = Config::get('tenancy::options.cpanel_user');
-			$this->cp = new Cpanel(Config::get('tenancy::options.cpanel_host'), $this->cpaneluser, Config::get('tenancy::options.cpanel_pass'));
-			$this->cp->set_port(Config::get('tenancy::options.cpanel_port'));   
-			$this->cp->set_debug(Config::get('tenancy::options.debug'));
-		}
-	}
-
-	/**
 	 * List available artisan commands.
 	 * 
 	 * <code>
