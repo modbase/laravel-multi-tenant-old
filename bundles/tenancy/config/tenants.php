@@ -18,7 +18,7 @@ array (
   array (
     'driver' => 'mysql',
     'host' => 'localhost',
-    'database' => 'tenant_default',
+    'database' => 'database',
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8',

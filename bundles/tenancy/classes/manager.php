@@ -105,7 +105,7 @@ class Manager
 	 */
 	public static function make($name, $db_pass)
 	{
-		if (preg_match('/^\w+$/', $name))
+		if (!preg_match('/^[a-z0-9]+$/', $name))
 		{
 			throw new Exception("ERROR! The tenant name provided contains illegal characters!");
 			return false;
@@ -330,8 +330,8 @@ class Manager
 		$tenant[$name] = array(
 			'driver'	=> 'mysql',
 			'host'		=> 'localhost',
-			'database'	=> "tenant_$name",
-			'username'	=> $name,
+			'database'	=> Config::get('tenancy::options.db_prefix').$name,
+			'username'	=> Config::get('tenancy::options.db_prefix').$name,
 			'password'	=> $db_pass,
 			'charset'	=> 'utf8',
 			'prefix'	=> ''
