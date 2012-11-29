@@ -116,3 +116,7 @@ function set_path($path, $value)
 {
 	$GLOBALS['laravel_paths'][$path] = $value;
 }
+
+define('DB_NAME', 'database');
+define('DB_USER', 'root');
+define('DB_PASS', '');

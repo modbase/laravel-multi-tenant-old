@@ -73,12 +73,12 @@ class Manager
 			return false;
 		}
 
-		$config = File::get(path('tenants').$name.'/config.php');	
+		$config = File::get(path('tenants').$name.'/paths.php');	
 		$config = preg_replace("/'DB_NAME', '.*'/", "'DB_NAME', '{$db_name}'", $config);	
 		$config = preg_replace("/'DB_USER', '.*'/", "'DB_USER', '{$db_user}'", $config); 	
 		$config = preg_replace("/'DB_PASS', '.*'/", "'DB_PASS', '{$db_pass}'", $config);
 
-		File::put(path('tenants').$name.'/config.php', $config);
+		File::put(path('tenants').$name.'/paths.php', $config);
 
 		if (!DB::query("CREATE DATABASE $db_name"))
 		{
