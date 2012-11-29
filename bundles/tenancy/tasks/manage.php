@@ -3,46 +3,6 @@
 class Tenancy_Manage_Task {
 
 	/**
-	 * cPanel instance.
-	 * 
-	 * @var	object
-	 */
-	protected $cp;
-	
-	/**
-	 * cPanel username.
-	 * 
-	 * @var string
-	 */
-	protected $cpaneluser;
-	
-	/**
-	 * cPanel option.
-	 * 
-	 * @var	bool
-	 */
-	protected $cpanel;
-
-	/**
-	 * Constructor
-	 * 
-	 * @return	void
-	 */
-	public function __construct()
-	{
-		$this->cpanel = Config::get('tenancy::options.enable_cpanel');
-
-		// If cPanel is enabled (via config), then setup a new instance of the Cpanel class.
-		if ($this->cpanel)
-		{
-			$this->cpaneluser = Config::get('tenancy::options.cpanel_user');
-			$this->cp = new Cpanel(Config::get('tenancy::options.cpanel_host'), $this->cpaneluser, Config::get('tenancy::options.cpanel_pass'));
-			$this->cp->set_port(Config::get('tenancy::options.cpanel_port'));   
-			$this->cp->set_debug(Config::get('tenancy::options.debug'));
-		}
-	}
-
-	/**
 	 * List available artisan commands.
 	 * 
 	 * <code>
@@ -52,7 +12,7 @@ class Tenancy_Manage_Task {
 	 * @param	array	$args
 	 * @return	void
 	 */
-	public function run()
+	public function run($args = array())
 	{
 		echo PHP_EOL.'Available commands:'.PHP_EOL.PHP_EOL;
 		echo "manage:show\tList all available tenants.".PHP_EOL;
@@ -71,37 +31,18 @@ class Tenancy_Manage_Task {
 	 * 	php artisan tenancy::manage:show
 	 * </code>
 	 * 
+	 * @param	array	$args
 	 * @return	bool
 	 */
 	public function show()
 	{
-		// If we can't open the directory there isn't anything we can do now.
-		if ($tenants = opendir(path('tenants')))
+		try
 		{
-			// List of places we don't want to display
-			$exclude = array('default', '.', '..');
-			$count = 0;
-
-			echo PHP_EOL.'Available tenants:'.PHP_EOL;
-			while (($tenant = readdir($tenants)) !== false)
-			{
-				// Check whether the tenant is actually a directory
-				// and that it isn't something we don't want to display.
-				if (is_dir(path('tenants').$tenant) && !in_array($tenant, $exclude))
-				{
-					$count++;
-					echo "- $tenant".PHP_EOL;
-				}
-			}
-
-			closedir($tenants);
-
-			if ($count === 0) echo 'No tenants added yet';
+			Manager::show();
 		}
-		else
+		catch (Exception $e)
 		{
-			$this->message('There was a problem opening the tenants directory.');
-			return false;
+			echo $e->getMessage();
 		}
 	}
 
@@ -134,55 +75,16 @@ class Tenancy_Manage_Task {
 		}
 
 		list($name, $db_pass) = $args;
-		$db_user = $db_name = Config::get('tenancy::options.db_prefix').$name;
 
-		$this->message('Creating tenant folder structure... ');
-
-		if (!$this->create_tenant_folder($name))
+		try
 		{
-			echo 'ERROR! Could not create new tenant directory! Make sure this name is unique.';
-			return false;
+			Manager::make($name, $db_pass);
+			echo "DONE! New tenant ($name) added to the system.";
 		}
-
-		$this->message('ok!', true);	
-		$this->message('Updating config files... ');
-		
-		// Grab the default config file from tenants/default/
-		// Replace the default values with the prepared values.
-		$config = File::get(path('tenants').$name.'/config.php');
-		$config = preg_replace("/'DB_NAME', '.*'/", "'DB_NAME', '{$db_name}'", $config);
-		$config = preg_replace("/'DB_USER', '.*'/", "'DB_USER', '{$db_user}'", $config);
-		$config = preg_replace("/'DB_PASS', '.*'/", "'DB_PASS', '{$db_pass}'", $config);
-		File::put(path('tenants').$name.'/config.php', $config);
-
-		$this->message('ok!', true);
-		$this->message('Creating database... ');
-
-		// If using cPanel then create the database using the cPanel API
-		// otherwise we will use Laravel's built in DB class.
-		if ($this->cpanel)
+		catch (Exception $e)
 		{
-			if (!$this->cp->create_database($db_name, $db_user, $db_pass))
-			{
-				echo 'ERROR! Could not create the database!';
-				return false;
-			}
-
-			$this->message('ok!', true);
-
-			// TODO: create a subdomain via cPanel API and link it to the tenants/$name/public folder
+			echo $e->getMessage();
 		}
-		else
-		{
-			if (!DB::query("CREATE DATABASE $db_name"))
-			{
-				echo 'ERROR: Could not create the database!';
-				return false;
-			}
-		}
-
-		echo "DONE! New tenant ($name) added to the system.";
-		return true;
 	}
 
 	/**
@@ -205,9 +107,17 @@ class Tenancy_Manage_Task {
 			return false;
 		}
 
+		$name = $args[0];
 		$new_pass = Str::random(10);
 
-		return $this->update(array($args[0], $new_pass));
+		try
+		{
+			Manager::update($name, $new_pass);
+		}
+		catch (Exception $e)
+		{
+			echo $e->getMessage();
+		}
 	}
 
 	/**
@@ -231,42 +141,16 @@ class Tenancy_Manage_Task {
 		}
 
 		list($name, $new_pass) = $args;
-		$db_user = Config::get('tenancy::options.db_prefix').$name;
 
-		if (!file_exists(path('tenants').$name))
+		try
 		{
-			echo 'ERROR! This tenant does not exist!';
-			return false;
-		}	
-
-		if ($this->cpanel)
-		{
-			$this->message('Updating database user... ');
-
-			if (!$this->cp->update_database_user($db_user, $new_pass))
-			{
-				echo 'ERROR! Could not update the database user!';
-				return false;
-			}
-
-			$this->message('ok!', true);
+			Manager::update($name, $new_pass);
+			echo "DONE! Tenant ($name) password has been updated.";
 		}
-
-		$this->message('Updating config files... ');
-		$config = File::get(path('tenants').$name.'/config.php');
-		$config = preg_replace("/'DB_PASS', '.*'/", "'DB_PASS', '{$new_pass}'", $config, 1, $count);
-
-		if ($count !== 1)
+		catch (Exception $e)
 		{
-			echo 'ERROR! Could not update the password!';
-			return false;
+			echo $e->getMessage();
 		}
-
-		File::put(path('tenants').$name.'/config.php', $config);
-		$this->message('ok!', true);
-
-		echo "DONE! Tenant ($name) password has been updated.";
-		return true;
 	}
 
 	/**
@@ -293,73 +177,15 @@ class Tenancy_Manage_Task {
 			return false;
 		}
 
-		foreach ($args as $name)
+		try
 		{
-			if ($name == 'default')
-			{
-				echo 'ERROR! You cannot delete the default tenant!';
-				continue;
-			}
-			
-			$this->message('Removing tenant directory... ');
-	
-			if (!file_exists(path('tenants').$name))
-			{
-				echo 'ERROR! This tenant does not exist!';
-				continue;
-			}
-	
-			File::rmdir(path('tenants').$name);
-	
-			$this->message('ok!', true);
-
-			$db_name = $db_user = Config::get('tenancy::options.db_prefix').$name;
-			
-			if ($this->cpanel)
-			{	
-				$this->message('Removing database and user... ');
-
-				if (!$this->cp->remove_database_and_user($db_name, $db_user))
-				{
-					echo 'ERROR! Could not remove database!';
-					continue;
-				}
-	
-				$this->message('ok!', true);
-	
-				// TODO: remove subdomain via cPanel API
-			}
-			else
-			{
-				$this->message('Removing database... ');
-
-				if (!DB::query("DROP DATABASE $db_name"))
-				{
-					echo 'ERROR: Could not drop the database!';
-					return false;
-				}
-			}
-			
-			echo "DONE! Tenant ($name) is removed from the system.";
+			Manager::remove($args);
+			echo "DONE! Tenant(s) removed from the system.";
 		}
-		return true;
-	}
-
-	/**
-	 * Create tenant foler in /tenants directory based on the default.
-	 * 
-	 * @param	string	$name
-	 * @return	bool
-	 */
-	private function create_tenant_folder($name)
-	{
-		if (file_exists(path('tenants').$name))
+		catch (Exception $e)
 		{
-			// Tenant already exists
-			return false;
+			echo $e->getMessage();
 		}
-		
-		return File::cpdir(path('tenants').'default', path('tenants').$name);
 	}
 
 	/**

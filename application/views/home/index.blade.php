@@ -10,26 +10,19 @@
 <body>
 	<div class="wrapper">
 		<header>
-			<h1>Laravel</h1>
-			<h2>A Framework For Web Artisans</h2>
+			<h1>Laravel (Multi Tenant)</h1>
+			<h2>A Multi Tenant Framework For Web Artisans</h2>
 
 			<p class="intro-text" style="margin-top: 45px;">
 			</p>
 		</header>
 		<div role="main" class="main">
 			<div class="home">
-				<h2>Learn the terrain.</h2>
+				<h2>Verification</h2>
 
-				<p>
-					You've landed yourself on our default home page. The route that
-					is generating this page lives at:
-				</p>
-
-				<pre>{{ path('app') }}routes.php</pre>
-
-				<p>And the view sitting before you can be found at:</p>
-
-				<pre>{{ path('app') }}views/home/index.blade.php</pre>
+				<p>Great! You're now using this database:</p>
+				
+				<pre><?= Config::get('database.connections.mysql.database') ?></pre>
 
 				<h2>Grow in knowledge.</h2>
 
@@ -46,9 +39,10 @@
 				</p>
 
 				<ul class="out-links">
-					<li><a href="http://laravel.com">Official Website</a></li>
+					<li><a href="https://github.com/modbase/laravel-multi-tenant">Multi tenancy GitHub Repository</a></li>
+					<li><a href="http://laravel.com">Laravel Official Website</a></li>
 					<li><a href="http://forums.laravel.com">Laravel Forums</a></li>
-					<li><a href="http://github.com/laravel/laravel">GitHub Repository</a></li>
+					<li><a href="http://github.com/laravel/laravel">Laravel GitHub Repository</a></li>
 				</ul>
 			</div>
 		</div>
