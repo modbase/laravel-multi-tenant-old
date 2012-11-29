@@ -1,4 +1,5 @@
-<?php
+<?php namespace Tenancy;
+
 /**
 * The base XML-API class
 *
@@ -6,55 +7,36 @@
 * an open source library that can be used for multiple types of applications.  This class relies on PHP5 compiled
 * with both curl and simplexml support.
 *
-* Making Calls with this class are done in the following steps:
-*
-* 1.) Instaniating the class:
-* $xmlapi = new xmlapi($host);
-*
-* 2.) Setting access credentials within the class via either set_password or set_hash:
-* $xmlapi->set_hash("username", $accessHash);
-* $xmlapi->set_password("username", "password");
-* 
-* 3.) Execute a function
-* $xmlapi->listaccts();
-*
-* @category Cpanel
-* @package xmlapi
-* @copyright 2011 cPanel, Inc.
-* @license http://sdk.cpanel.net/license/bsd.html
-* @version Release: 1.0.11
-* @link http://twiki.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/XmlApi
-* @since Class available since release 0.1
 **/
 
-class Cpanel {
+class CPanel {
 	// should debugging statements be printed?
-	private $debug			= false;
+	private $debug = false;
 	
 	// The host to connect to
-	private $host				=	'127.0.0.1';
+	private $host =	'127.0.0.1';
 
 	// the port to connect to
-	private $port				=	'2087';
+	private $port = '2087';
 
 	// should be the literal strings http or https
-	private $protocol		=	'https';
+	private $protocol =	'https';
 
 	// output that should be given by the xml-api
-	private $output		=	'simplexml';
+	private $output = 'simplexml';
 
 	// literal strings hash or password
-	private $auth_type 	= null;
+	private $auth_type = null;
 
 	//  the actual password or hash
-	private $auth 			= null;
+	private $auth = null;
 	
 	// username to authenticate as
-	private $user				= null;
+	private $user = null;
 	
 	// The HTTP Client to use
 	
-	private $http_client		= 'curl';
+	private $http_client = 'curl';
 	
 	/**
 	* Instantiate the XML-API Object
