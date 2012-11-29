@@ -1,7 +1,5 @@
 <?php
 
-Autoloader::directories(array(
-    __DIR__.'/libraries',
-    __DIR__.'/tasks',
+Laravel\Autoloader::map(array(
+	'Tenancy\\Manager' => __DIR__.DS.'manager'.EXT,
 ));
-
