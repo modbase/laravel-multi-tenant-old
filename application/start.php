@@ -175,6 +175,6 @@ if ( ! Request::cli() and Config::get('session.driver') !== '')
 // This isn't the most ideal solution but it's the only way we can
 // combine the tenant connections with the application connections.
 Config::set('database.connections',
-	Config::get('tenancy::tenants', array()),
-	Config::get('database.connections')
+	Config::get('database.connections'),
+	Config::get('tenancy::tenants', array())
 );
