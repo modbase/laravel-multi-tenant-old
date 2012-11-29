@@ -30,32 +30,32 @@ $environments = array(
 // --------------------------------------------------------------
 // The path to the application directory.
 // --------------------------------------------------------------
-$paths['app'] = '../../application';
+$paths['app'] = 'application';
 
 // --------------------------------------------------------------
 // The path to the Laravel directory.
 // --------------------------------------------------------------
-$paths['sys'] = '../../laravel';
+$paths['sys'] = 'laravel';
 
 // --------------------------------------------------------------
 // The path to the bundles directory.
 // --------------------------------------------------------------
-$paths['bundle'] = '../../bundles';
+$paths['bundle'] = 'bundles';
 
 // --------------------------------------------------------------
 // The path to the storage directory.
 // --------------------------------------------------------------
-$paths['storage'] = 'storage';
+$paths['storage'] = 'tenants/default/storage';
 
 // --------------------------------------------------------------
 // The path to the public directory.
 // --------------------------------------------------------------
-$paths['public'] = '../../public';
+$paths['public'] = 'tenants/default/public';
 
 // --------------------------------------------------------------
 // The path to the tenants directory.
 // --------------------------------------------------------------
-$paths['tenants'] = '../../tenants';
+$paths['tenants'] = 'tenants';
 
 // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 // END OF USER CONFIGURATION. HERE BE DRAGONS!
